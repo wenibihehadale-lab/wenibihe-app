@@ -1,0 +1,874 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEROGEST — Tableau de contrôle des vols</title>
+
+  :root{
+    --bg:#0a0e1a;
+    --board-bg:#0f1729;
+    --tile-bg:#162133;
+    --tile-bg-light:#1b2840;
+    --amber:#ffb300;
+    --amber-dim:<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AEROGEST — Contrôle des vols</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#050a14;--deep:#080f1e;--surface:#0c1628;--raised:#111f38;--lifted:#172847;--border:rgba(255,255,255,.07);--border-lit:rgba(255,185,0,.25);--amber:#ffb900;--amber-soft:#e8a800;--amber-dim:rgba(255,185,0,.15);--amber-glow:rgba(255,185,0,.08);--sky:#38bdf8;--sky-dim:rgba(56,189,248,.12);--green:#34d399;--green-dim:rgba(52,211,153,.12);--red:#fb7185;--red-dim:rgba(251,113,133,.12);--t1:#e8eef8;--t2:#7d8fa8;--t3:#3d5070;--r4:4px;--r8:8px;--r12:12px;--r16:16px;--mono:'JetBrains Mono',monospace;--body:'Inter',sans-serif;--display:'Syne',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--ink);color:var(--t1);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--deep)}::-webkit-scrollbar-thumb{background:var(--lifted);border-radius:3px}
+/* HEADER */
+.site-header{position:relative;overflow:hidden;background:var(--deep);border-bottom:1px solid var(--border);padding:0 32px}
+.radar-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.radar-bg::before{content:'';position:absolute;top:-120px;right:-120px;width:420px;height:420px;border-radius:50%;border:1px solid rgba(255,185,0,.06);box-shadow:0 0 0 60px rgba(255,185,0,.03),0 0 0 120px rgba(255,185,0,.02),0 0 0 180px rgba(255,185,0,.01)}
+.radar-sweep{position:absolute;top:-120px;right:-120px;width:420px;height:420px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0deg,rgba(255,185,0,.07) 15deg,transparent 60deg);animation:radarSpin 6s linear infinite}
+@keyframes radarSpin{to{transform:rotate(360deg)}}
+.radar-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,185,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,185,0,.025) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(180deg,rgba(0,0,0,.4),transparent)}
+.header-inner{position:relative;z-index:2;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 0 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-icon{width:44px;height:44px;background:var(--amber-dim);border:1px solid var(--border-lit);border-radius:var(--r8);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 0 20px rgba(255,185,0,.12)}
+.brand-text{display:flex;flex-direction:column;gap:2px}
+.brand-name{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:3px;color:var(--amber);line-height:1;text-shadow:0 0 24px rgba(255,185,0,.4)}
+.brand-sub{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--t3);text-transform:uppercase}
+.header-stats{display:flex;gap:6px;flex-wrap:wrap}
+.hstat{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);padding:10px 18px;min-width:80px}
+.hstat-val{font-family:var(--mono);font-weight:700;font-size:20px;color:var(--amber);line-height:1}
+.hstat-lbl{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.clock-wrap{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r8);padding:8px 14px}
+.clock-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.clock-time{font-family:var(--mono);font-size:12px;color:var(--t2);letter-spacing:.5px}
+/* NAV */
+.nav-strip{max-width:1100px;margin:0 auto;padding:0 32px;display:flex;gap:2px;position:relative;z-index:2}
+.nav-tab{position:relative;display:flex;align-items:center;gap:8px;padding:13px 22px 12px;background:transparent;border:1px solid transparent;border-bottom:none;border-radius:var(--r8) var(--r8) 0 0;color:var(--t3);font-family:var(--body);font-weight:600;font-size:13px;letter-spacing:.3px;cursor:pointer;transition:color .2s,background .2s}
+.nav-tab svg{width:15px;height:15px;flex-shrink:0}
+.nav-tab .pill{background:var(--raised);color:var(--t3);font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;transition:background .2s,color .2s}
+.nav-tab:hover{color:var(--t1)}
+.nav-tab.active{color:var(--amber);background:var(--surface);border-color:var(--border)}
+.nav-tab.active .pill{background:var(--amber-dim);color:var(--amber)}
+.nav-tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:var(--surface)}
+/* MAIN */
+.main-wrap{max-width:1100px;margin:0 auto;padding:0 32px 80px}
+.panel{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 var(--r12) var(--r12) var(--r12);padding:28px;min-height:420px}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px}
+.search-wrap{position:relative;flex:1;max-width:320px}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--t3);pointer-events:none}
+.search-input{width:100%;background:var(--raised);border:1px solid var(--border);color:var(--t1);font-family:var(--body);font-size:13px;padding:10px 12px 10px 36px;border-radius:var(--r8);outline:none;transition:border-color .2s,box-shadow .2s}
+.search-input::placeholder{color:var(--t3)}
+.search-input:focus{border-color:var(--border-lit);box-shadow:0 0 0 3px var(--amber-glow)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:var(--body);font-weight:600;font-size:13px;border:none;border-radius:var(--r8);padding:10px 18px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn svg{width:14px;height:14px}
+.btn:active{transform:scale(.97)}
+.btn-amber{background:var(--amber);color:#0d0900;box-shadow:0 2px 16px rgba(255,185,0,.2)}
+.btn-amber:hover{background:var(--amber-soft);box-shadow:0 4px 24px rgba(255,185,0,.35)}
+.btn-ghost{background:transparent;color:var(--amber);border:1px solid var(--border-lit)}
+.btn-ghost:hover{background:var(--amber-glow)}
+/* ADD FORM */
+.add-form-wrap{display:none;margin-bottom:22px;background:var(--raised);border:1px solid var(--border-lit);border-radius:var(--r12);padding:22px;animation:fadeSlide .2s ease}
+.add-form-wrap.open{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.add-form-title{font-family:var(--display);font-size:14px;font-weight:700;letter-spacing:1px;color:var(--amber);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.add-form-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.field input,.field select{background:var(--surface);border:1px solid var(--border);color:var(--t1);font-family:var(--mono);font-size:13px;padding:10px 12px;border-radius:var(--r8);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+.field input::placeholder{color:var(--t3)}
+.field input:focus,.field select:focus{border-color:var(--border-lit);box-shadow:0 0 0 3px var(--amber-glow)}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+/* FLIGHTS TABLE */
+.flights-table-wrap{border:1px solid var(--border);border-radius:var(--r12);overflow:hidden}
+.ftable{width:100%;border-collapse:collapse}
+.ftable thead tr{background:var(--raised);border-bottom:1px solid var(--border)}
+.ftable th{text-align:left;padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);white-space:nowrap}
+.ftable td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ftable tbody tr:last-child td{border-bottom:none}
+.ftable tbody tr{transition:background .12s}
+.ftable tbody tr:hover{background:rgba(255,255,255,.025)}
+.ftable tbody tr.full-row{opacity:.45}
+.fnum{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--amber);background:var(--amber-dim);border:1px solid rgba(255,185,0,.2);border-radius:var(--r4);padding:5px 10px;letter-spacing:1px}
+.route{display:flex;align-items:center;gap:8px;font-family:var(--body);font-size:13px;font-weight:500;color:var(--t1)}
+.route-arrow{color:var(--t3);font-size:11px}
+.seats-wrap{display:flex;flex-direction:column;gap:5px}
+.seats-count{font-family:var(--mono);font-size:12px;color:var(--t1)}
+.seats-bar{width:80px;height:4px;background:var(--raised);border-radius:2px;overflow:hidden}
+.seats-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.seats-fill.ok{background:var(--green)}.seats-fill.warn{background:var(--amber)}.seats-fill.none{background:var(--red);width:100%!important}
+.price-cell{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t1)}
+.price-cell .currency{color:var(--t3);font-weight:400;font-size:11px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.badge-ok{background:var(--green-dim);color:var(--green)}.badge-ok::before{background:var(--green);box-shadow:0 0 6px var(--green)}
+.badge-full{background:var(--red-dim);color:var(--red)}.badge-full::before{background:var(--red)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:72px 24px;color:var(--t3);text-align:center}
+.empty-icon{font-size:40px;opacity:.4}
+.empty-state p{font-size:14px;line-height:1.6;max-width:300px}
+/* RESERVE */
+.reserve-layout{display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start}
+.reserve-card{background:var(--raised);border:1px solid var(--border);border-radius:var(--r16);padding:28px}
+.card-title{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:1px;color:var(--t1);text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.card-title svg{width:18px;height:18px;color:var(--amber)}
+.rfield{margin-bottom:18px}
+.rfield label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
+.rfield select,.rfield input{background:var(--surface);border:1px solid var(--border);color:var(--t1);font-family:var(--mono);font-size:13px;padding:11px 14px;border-radius:var(--r8);outline:none;width:100%;transition:border-color .15s,box-shadow .15s}
+.rfield select:focus,.rfield input:focus{border-color:var(--border-lit);box-shadow:0 0 0 3px var(--amber-glow)}
+.rfield input::placeholder{color:var(--t3)}
+.flight-preview{margin-top:8px;padding:10px 12px;background:var(--surface);border-radius:var(--r8);display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;transition:all .2s}
+.fp-route{font-family:var(--body);font-size:12px;font-weight:500;color:var(--t2)}
+.fp-price{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--amber)}
+.fp-seats{font-size:11px;color:var(--t3)}
+/* TICKET */
+.ticket-panel{position:sticky;top:24px}
+.ticket-card{background:linear-gradient(145deg,#0f1c35,#0c1628);border:1px solid var(--border-lit);border-radius:var(--r16);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,185,0,.05)}
+.ticket-stripe{height:3px;background:linear-gradient(90deg,transparent 5%,var(--amber) 30%,var(--amber-soft) 70%,transparent 95%)}
+.ticket-header{padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.07)}
+.ticket-airline{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:2px;color:var(--amber)}
+.ticket-tag{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--t3);text-transform:uppercase}
+.ticket-body{padding:20px 24px}
+.ticket-empty-msg{text-align:center;padding:32px 0;color:var(--t3);font-size:13px;line-height:1.7}
+.ticket-empty-msg .t-icon{font-size:32px;display:block;margin-bottom:10px;opacity:.3}
+.ticket-route{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:8px}
+.t-city{display:flex;flex-direction:column;gap:4px}
+.t-city-code{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:2px;color:var(--t1);line-height:1}
+.t-city-name{font-size:10px;color:var(--t3);letter-spacing:1px}
+.t-plane{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.t-line{width:100%;height:1px;background:linear-gradient(90deg,var(--t3),rgba(255,185,0,.5),var(--t3));position:relative}
+.t-line::after{content:'✈';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);font-size:14px;padding:0 4px;color:var(--amber);line-height:1}
+.ticket-data{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.td-item{display:flex;flex-direction:column;gap:4px;padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--r8)}
+.td-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
+.td-value{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--t1)}
+.ticket-perf{display:flex;align-items:center;gap:0;margin:0 -24px 18px;position:relative}
+.perf-notch{width:20px;height:20px;border-radius:50%;background:var(--surface);border:1px solid var(--border);flex-shrink:0}
+.perf-line{flex:1;border-top:2px dashed rgba(255,255,255,.06)}
+.ticket-footer{padding:12px 24px 18px}
+.barcode{display:flex;gap:2px;align-items:flex-end;height:32px;margin-bottom:6px}
+.barcode-bar{background:var(--t3);border-radius:1px;opacity:.4}
+.ticket-ref{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--t3);text-align:center}
+/* PASSENGERS */
+.pax-table-wrap{border:1px solid var(--border);border-radius:var(--r12);overflow:hidden}
+.pax-table{width:100%;border-collapse:collapse}
+.pax-table thead tr{background:var(--raised);border-bottom:1px solid var(--border)}
+.pax-table th{text-align:left;padding:12px 16px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.pax-table td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.pax-table tbody tr:last-child td{border-bottom:none}
+.pax-table tbody tr:hover{background:rgba(255,255,255,.02)}
+.pax-id-chip{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t3);background:var(--raised);border-radius:var(--r4);padding:4px 8px}
+.pax-name{font-weight:600;color:var(--t1)}
+.pax-route{display:flex;align-items:center;gap:6px;color:var(--t2);font-size:12px}
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;display:flex;align-items:center;gap:10px;background:var(--raised);border:1px solid var(--border);border-radius:var(--r12);padding:14px 18px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.5);pointer-events:none;opacity:0;transform:translateY(12px);transition:opacity .2s,transform .2s;z-index:200;max-width:320px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.toast.success{border-color:rgba(52,211,153,.3)}.toast.success .toast-icon{background:var(--green-dim);color:var(--green)}
+.toast.error{border-color:rgba(251,113,133,.3)}.toast.error .toast-icon{background:var(--red-dim);color:var(--red)}
+/* FOOTER */
+footer{max-width:1100px;margin:0 auto;padding:16px 32px 32px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.footer-left{font-family:var(--mono);font-size:11px;color:var(--t3);letter-spacing:.5px}
+.footer-right{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3)}
+.footer-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+/* RESPONSIVE */
+@media(max-width:900px){.reserve-layout{grid-template-columns:1fr}.ticket-panel{position:static}.header-stats{display:none}}
+@media(max-width:680px){.site-header,.nav-strip,.main-wrap,footer{padding-left:16px;padding-right:16px}.panel{padding:18px 14px}.add-form-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.brand-name{font-size:18px}.add-form-grid{grid-template-columns:1fr}.ticket-data{grid-template-columns:1fr}.nav-tab{padding:11px 14px 10px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="radar-bg"><div class="radar-sweep"></div></div>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon">✈</div>
+      <div class="brand-text">
+        <span class="brand-name">AEROGEST</span>
+        <span class="brand-sub">Contrôle des vols</span>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="hstat"><span class="hstat-val" id="stat-vols">3</span><span class="hstat-lbl">Vols</span></div>
+      <div class="hstat"><span class="hstat-val" id="stat-dispo">2</span><span class="hstat-lbl">Disponibles</span></div>
+      <div class="hstat"><span class="hstat-val" id="stat-pax">0</span><span class="hstat-lbl">Passagers</span></div>
+    </div>
+    <div class="clock-wrap">
+      <div class="clock-dot"></div>
+      <span class="clock-time" id="clock">--:--:--</span>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<div class="nav-strip">
+  <button class="nav-tab active" data-tab="vols">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l1.5-4.5L2 8l5 1 3-5 3 5 5-1-2.5 4.5L18 17l-5-2-5 2z"/></svg>
+    Vols <span class="pill" id="pill-vols">3</span>
+  </button>
+  <button class="nav-tab" data-tab="reserver">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    Réserver
+  </button>
+  <button class="nav-tab" data-tab="passagers">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Passagers <span class="pill" id="pill-pax">0</span>
+  </button>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+<div class="panel">
+
+  <!-- VOLS -->
+  <div class="tab-pane active" id="pane-vols">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="search-input" placeholder="Vol, ville, destination…">
+      </div>
+      <button class="btn btn-amber" id="btn-toggle-form">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter un vol
+      </button>
+    </div>
+
+    <div class="add-form-wrap" id="add-form">
+      <div class="add-form-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Nouveau vol
+      </div>
+      <div class="add-form-grid">
+        <div class="field"><label for="f-num">N° de vol</label><input type="number" id="f-num" placeholder="204" min="1"></div>
+        <div class="field"><label for="f-dep">Départ</label><input type="text" id="f-dep" placeholder="Nouakchott"></div>
+        <div class="field"><label for="f-dest">Destination</label><input type="text" id="f-dest" placeholder="Dakar"></div>
+        <div class="field"><label for="f-seats">Places</label><input type="number" id="f-seats" placeholder="80" min="1"></div>
+        <div class="field"><label for="f-price">Prix (mru)</label><input type="number" id="f-price" placeholder="9500.00" step="0.01" min="0.01"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" id="btn-cancel-form">Annuler</button>
+        <button class="btn btn-amber" id="btn-confirm-form">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+          Enregistrer le vol
+        </button>
+      </div>
+    </div>
+
+    <div class="flights-table-wrap">
+      <table class="ftable" id="ftable">
+        <thead><tr><th>Vol</th><th>Départ</th><th>Destination</th><th>Places</th><th>Prix</th><th>Statut</th></tr></thead>
+        <tbody id="ftable-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-vols" style="display:none;">
+        <span class="empty-icon">🛫</span>
+        <p>Aucun vol enregistré.<br>Cliquez sur <strong>Ajouter un vol</strong> pour commencer.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RÉSERVER -->
+  <div class="tab-pane" id="pane-reserver">
+    <div class="reserve-layout">
+      <div class="reserve-card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Réserver un billet
+        </div>
+        <div class="rfield">
+          <label for="r-vol">Choisir un vol</label>
+          <select id="r-vol"></select>
+          <div class="flight-preview" id="r-preview">
+            <span class="fp-route" style="color:var(--t3)">Sélectionnez un vol</span>
+          </div>
+        </div>
+        <div class="rfield">
+          <label for="r-nom">Nom du passager</label>
+          <input type="text" id="r-nom" placeholder="ex. Aïcha Diallo" autocomplete="name">
+        </div>
+        <button class="btn btn-amber" id="btn-reserve" style="width:100%;justify-content:center;padding:13px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Confirmer la réservation
+        </button>
+      </div>
+
+      <div class="ticket-panel">
+        <div class="ticket-card">
+          <div class="ticket-stripe"></div>
+          <div class="ticket-header">
+            <span class="ticket-airline">AEROGEST</span>
+            <span class="ticket-tag">Boarding Pass</span>
+          </div>
+          <div class="ticket-body" id="ticket-body">
+            <div class="ticket-empty-msg">
+              <span class="t-icon">🎫</span>
+              Votre billet apparaîtra ici après la réservation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSAGERS -->
+  <div class="tab-pane" id="pane-passagers">
+    <div class="pax-table-wrap">
+      <table class="pax-table" id="pax-table">
+        <thead><tr><th>ID</th><th>Passager</th><th>Vol</th><th>Trajet</th></tr></thead>
+        <tbody id="pax-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-pax" style="display:none;">
+        <span class="empty-icon">🧳</span>
+        <p>Aucun passager enregistré.<br>Les réservations apparaîtront ici.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <span class="footer-left">AEROGEST · Session en mémoire uniquement</span>
+  <div class="footer-right"><div class="footer-dot"></div>Système opérationnel</div>
+</footer>
+
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toast-icon"></div>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+(function(){
+'use strict';
+let vols=[
+  {numero:204,depart:'Nouakchott',destination:'Dakar',places:4,prix:9500.00,max:4},
+  {numero:318,depart:'Casablanca',destination:'Paris',places:0,prix:31000.50,max:150},
+  {numero:552,depart:'Nouakchott',destination:'Casablanca',places:27,prix:14000.00,max:27},
+];
+let passagers=[];
+let searchTerm='';
+const $=id=>document.getElementById(id);
+const money=n=>Number(n).toFixed(2)+' mru';
+const findVol=n=>vols.find(v=>v.numero===n)||null;
+const pad=(n,w)=>String(n).padStart(w,'0');
+
+function randBars(){
+  let h='';
+  [1,2,3,1,2,1,3,2,1,2,3,1,2,1,2,3,1,2,3,2,1,3,2,1].forEach(w=>{
+    const ht=10+Math.random()*20;
+    h+=`<div class="barcode-bar" style="width:${w}px;height:${ht}px"></div>`;
+  });
+  return h;
+}
+
+function toast(msg,type='success'){
+  const el=$('toast');
+  $('toast-icon').textContent=type==='success'?'✓':'✕';
+  $('toast-msg').textContent=msg;
+  el.className=`toast show ${type}`;
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.className='toast';},3000);
+}
+
+function updateStats(){
+  $('stat-vols').textContent=vols.length;
+  $('stat-dispo').textContent=vols.filter(v=>v.places>0).length;
+  $('stat-pax').textContent=passagers.length;
+  $('pill-vols').textContent=vols.length;
+  $('pill-pax').textContent=passagers.length;
+}
+
+function renderVols(){
+  const tbody=$('ftable-body');
+  const empty=$('empty-vols');
+  const table=$('ftable');
+  const filtered=searchTerm
+    ?vols.filter(v=>String(v.numero).includes(searchTerm)||v.depart.toLowerCase().includes(searchTerm.toLowerCase())||v.destination.toLowerCase().includes(searchTerm.toLowerCase()))
+    :vols;
+  if(vols.length===0){table.style.display='none';empty.style.display='flex';updateStats();return;}
+  table.style.display='';empty.style.display='none';
+  if(filtered.length===0){
+    tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state" style="padding:40px 20px;"><span class="empty-icon">🔍</span><p>Aucun vol pour «\u00a0${searchTerm}\u00a0».</p></div></td></tr>`;
+    updateStats();return;
+  }
+  tbody.innerHTML=filtered.map(v=>{
+    const pct=v.max>0?Math.round((v.places/v.max)*100):0;
+    const cls=v.places===0?'none':pct<=25?'warn':'ok';
+    return `<tr class="${v.places===0?'full-row':''}">
+      <td><span class="fnum">✈ ${v.numero}</span></td>
+      <td><div class="route">${v.depart}</div></td>
+      <td><div class="route"><span class="route-arrow">→</span>${v.destination}</div></td>
+      <td><div class="seats-wrap"><span class="seats-count">${v.places} place${v.places!==1?'s':''}</span><div class="seats-bar"><div class="seats-fill ${cls}" style="width:${cls==='none'?100:pct}%"></div></div></div></td>
+      <td><div class="price-cell"><span class="currency">mru </span>${Number(v.prix).toFixed(2)}</div></td>
+      <td><span class="badge ${v.places>0?'badge-ok':'badge-full'}">${v.places>0?'Disponible':'Complet'}</span></td>
+    </tr>`;
+  }).join('');
+  updateStats();
+}
+
+function renderSelect(){
+  const sel=$('r-vol');
+  const prev=sel.value;
+  if(vols.length===0){sel.innerHTML='<option value="">Aucun vol disponible</option>';updatePreview(null);return;}
+  sel.innerHTML=vols.map(v=>`<option value="${v.numero}">Vol ${v.numero} · ${v.depart} → ${v.destination}</option>`).join('');
+  if(prev&&findVol(Number(prev)))sel.value=prev;
+  updatePreview(findVol(Number(sel.value)));
+}
+
+function updatePreview(v){
+  const el=$('r-preview');
+  if(!v){el.innerHTML='<span class="fp-route" style="color:var(--t3)">Sélectionnez un vol</span>';return;}
+  const color=v.places>0?'var(--green)':'var(--red)';
+  el.innerHTML=`<div><div class="fp-route">${v.depart} → ${v.destination}</div><div class="fp-seats" style="color:${color};margin-top:3px;">${v.places>0?v.places+' place'+(v.places!==1?'s':'')+' restante'+(v.places!==1?'s':''):'Complet'}</div></div><span class="fp-price">${money(v.prix)}</span>`;
+}
+
+function renderPassagers(){
+  const tbody=$('pax-body');
+  const empty=$('empty-pax');
+  const table=$('pax-table');
+  if(passagers.length===0){table.style.display='none';empty.style.display='flex';updateStats();return;}
+  table.style.display='';empty.style.display='none';
+  tbody.innerHTML=passagers.map(p=>{
+    const v=findVol(p.numeroVol);
+    return `<tr>
+      <td><span class="pax-id-chip">#${pad(p.id,3)}</span></td>
+      <td><span class="pax-name">${p.nom}</span></td>
+      <td><span class="fnum" style="font-size:12px;">✈ ${p.numeroVol}</span></td>
+      <td><div class="pax-route">${v?v.depart:'—'}<span style="color:var(--t3)">→</span>${v?v.destination:'—'}</div></td>
+    </tr>`;
+  }).join('');
+  updateStats();
+}
+
+function renderTicket(p,v){
+  const dep=v.depart.slice(0,3).toUpperCase();
+  const arr=v.destination.slice(0,3).toUpperCase();
+  const ref=`AG${pad(p.id,3)}-${v.numero}`;
+  $('ticket-body').innerHTML=`
+    <div class="ticket-route">
+      <div class="t-city"><div class="t-city-code">${dep}</div><div class="t-city-name">${v.depart}</div></div>
+      <div class="t-plane"><div class="t-line"></div></div>
+      <div class="t-city" style="text-align:right"><div class="t-city-code">${arr}</div><div class="t-city-name">${v.destination}</div></div>
+    </div>
+    <div class="ticket-data">
+      <div class="td-item"><span class="td-label">Passager</span><span class="td-value" style="font-size:12px">${p.nom}</span></div>
+      <div class="td-item"><span class="td-label">ID</span><span class="td-value">#${pad(p.id,3)}</span></div>
+      <div class="td-item"><span class="td-label">Vol</span><span class="td-value">${v.numero}</span></div>
+      <div class="td-item"><span class="td-label">Prix</span><span class="td-value" style="color:var(--amber)">${money(v.prix)}</span></div>
+    </div>
+    <div class="ticket-perf"><div class="perf-notch"></div><div class="perf-line"></div><div class="perf-notch"></div></div>
+    <div class="ticket-footer"><div class="barcode">${randBars()}</div><div class="ticket-ref">${ref}</div></div>
+  `;
+}
+
+function addVol(){
+  const numero=parseInt($('f-num').value,10);
+  const depart=$('f-dep').value.trim();
+  const dest=$('f-dest').value.trim();
+  const places=parseInt($('f-seats').value,10);
+  const prix=parseFloat($('f-price').value);
+  if(!numero||!depart||!dest||isNaN(places)||places<1||isNaN(prix)||prix<=0){toast('Remplissez tous les champs correctement.','error');return;}
+  if(findVol(numero)){toast(`Le vol ${numero} existe déjà.`,'error');return;}
+  vols.push({numero,depart,destination:dest,places,prix,max:places});
+  renderVols();renderSelect();closeForm();
+  toast(`Vol ${numero} · ${depart} → ${dest} ajouté.`);
+}
+
+function reserve(){
+  const numero=Number($('r-vol').value);
+  const nom=$('r-nom').value.trim();
+  const v=findVol(numero);
+  if(!v){toast('Sélectionnez un vol valide.','error');return;}
+  if(!nom){toast('Renseignez le nom du passager.','error');return;}
+  if(v.places<=0){toast(`Vol ${numero} complet.`,'error');return;}
+  v.places--;
+  const p={id:passagers.length+1,nom,numeroVol:numero};
+  passagers.push(p);
+  renderVols();renderSelect();renderPassagers();renderTicket(p,v);
+  $('r-nom').value='';
+  toast(`Billet confirmé pour ${nom}.`);
+}
+
+function openForm(){
+  $('add-form').classList.add('open');
+  $('btn-toggle-form').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Fermer`;
+  $('f-num').focus();
+}
+
+function closeForm(){
+  $('add-form').classList.remove('open');
+  $('btn-toggle-form').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter un vol`;
+  ['f-num','f-dep','f-dest','f-seats','f-price'].forEach(id=>$(id).value='');
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    $('pane-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+$('btn-toggle-form').addEventListener('click',()=>$('add-form').classList.contains('open')?closeForm():openForm());
+$('btn-cancel-form').addEventListener('click',closeForm);
+$('btn-confirm-form').addEventListener('click',addVol);
+$('btn-reserve').addEventListener('click',reserve);
+$('r-vol').addEventListener('change',()=>updatePreview(findVol(Number($('r-vol').value))));
+$('search-input').addEventListener('input',e=>{searchTerm=e.target.value.trim();renderVols();});
+$('r-nom').addEventListener('keydown',e=>{if(e.key==='Enter')reserve();});
+$('f-price').addEventListener('keydown',e=>{if(e.key==='Enter')addVol();});
+
+function tick(){$('clock').textContent=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+tick();setInterval(tick,1000);
+
+renderVols();renderSelect();renderPassagers();
+})();
+</script>
+</body>
+</html>
+
+<body>
+
+<header>
+  <div class="brand-row">
+    <div class="brand">✈️ AEROGEST <small>TABLEAU DE CONTRÔLE DES VOLS</small></div>
+    <div class="clock" id="clock"></div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="vols">Vols <span class="count" id="count-vols">(0)</span></button>
+  <button class="tab-btn" data-tab="reserver">Réserver</button>
+  <button class="tab-btn" data-tab="passagers">Passagers <span class="count" id="count-pax">(0)</span></button>
+</nav>
+
+<main>
+  <div class="panel">
+
+    <!-- VOLS -->
+    <section class="panel-section active" id="panel-vols">
+      <div class="row-between">
+        <input type="text" id="search-input" class="search-input" placeholder="Rechercher un numéro de vol…">
+        <button class="btn btn-primary" id="toggle-add-form">+ Ajouter un vol</button>
+      </div>
+
+      <div class="add-form" id="add-form">
+        <div class="field">
+          <label>N° de vol</label>
+          <input type="number" id="f-numero" placeholder="ex. 204">
+        </div>
+        <div class="field">
+          <label>Départ</label>
+          <input type="text" id="f-depart" placeholder="ex. Nouakchott">
+        </div>
+        <div class="field">
+          <label>Destination</label>
+          <input type="text" id="f-destination" placeholder="ex. Dakar">
+        </div>
+        <div class="field">
+          <label>Places</label>
+          <input type="number" id="f-places" placeholder="ex. 80">
+        </div>
+        <div class="field">
+          <label>Prix (mru)</label>
+          <input type="number" id="f-prix" placeholder="ex. 12000.00" step="0.01">
+        </div>
+        <div class="submit-row">
+          <button class="btn btn-ghost" id="cancel-add-form">Annuler</button>
+          <button class="btn btn-primary" id="confirm-add-form">Ajouter le vol</button>
+        </div>
+      </div>
+
+      <div id="board-head" class="board-head">
+        <div>N° Vol</div><div>Départ</div><div>Destination</div><div>Places</div><div>Prix</div><div>Statut</div>
+      </div>
+      <div id="board-body"></div>
+    </section>
+
+    <!-- RÉSERVER -->
+    <section class="panel-section" id="panel-reserver">
+      <div class="reserve-grid">
+        <div class="reserve-form">
+          <div class="field">
+            <label>Vol</label>
+            <select id="r-vol"></select>
+            <div class="flight-info" id="r-flight-info"></div>
+          </div>
+          <div class="field">
+            <label>Nom du passager</label>
+            <input type="text" id="r-nom" placeholder="ex. Aïcha Diallo">
+          </div>
+          <button class="btn btn-primary" id="confirm-reserve" style="width:100%;">Réserver le billet</button>
+        </div>
+        <div class="ticket" id="ticket-area">
+          <div class="ticket-eyebrow">Dernière réservation</div>
+          <div class="ticket-empty" id="ticket-empty-msg">Aucune réservation pour l'instant. Choisissez un vol et un nom pour générer un billet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PASSAGERS -->
+    <section class="panel-section" id="panel-passagers">
+      <table class="pax-table" id="pax-table">
+        <thead>
+          <tr><th>ID</th><th>Nom</th><th>N° Vol</th><th>Trajet</th></tr>
+        </thead>
+        <tbody id="pax-body"></tbody>
+      </table>
+      <div id="pax-empty" class="empty-state" style="display:none;">
+        <span class="ico">🧳</span>
+        Aucun passager enregistré. Les réservations apparaîtront ici.
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>AEROGEST · données conservées en mémoire pour cette session</footer>
+<div id="toast"></div>
+
+<script>
+(function(){
+  // ---------- State ----------
+  let vols = [
+    { numero: 204, depart: "Nouakchott", destination: "Dakar", places: 4, prix: 9500.00 },
+    { numero: 318, depart: "Casablanca", destination: "Paris", places: 0, prix: 31000.50 },
+    { numero: 552, depart: "Nouakchott", destination: "Casablanca", places: 27, prix: 14000.00 },
+  ];
+  let passagers = [];
+  let searchTerm = "";
+
+  // ---------- Helpers ----------
+  function toast(msg, type){
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + (type || '');
+    clearTimeout(el._t);
+    el._t = setTimeout(()=> el.className = '', 2600);
+  }
+
+  function flapTiles(value, width){
+    const text = String(value).padStart(width, ' ').slice(0, width);
+    return text.split('').map((ch,i)=>
+      `<span class="flap-tile" style="--i:${i}">${ch===' ' ? '&nbsp;' : ch}</span>`
+    ).join('');
+  }
+
+  function money(n){ return Number(n).toFixed(2) + ' mru'; }
+
+  function findVol(numero){ return vols.find(v => v.numero === numero); }
+
+  // ---------- Render: Vols board ----------
+  function renderVols(){
+    const body = document.getElementById('board-body');
+    document.getElementById('count-vols').textContent = `(${vols.length})`;
+
+    const filtered = searchTerm
+      ? vols.filter(v => String(v.numero).includes(searchTerm))
+      : vols;
+
+    if (vols.length === 0){
+      body.innerHTML = `<div class="empty-state"><span class="ico">🛫</span>Aucun vol enregistré. Ajoutez le premier vol ci-dessus.</div>`;
+      return;
+    }
+    if (filtered.length === 0){
+      body.innerHTML = `<div class="empty-state"><span class="ico">🔎</span>Aucun vol ne correspond à « ${searchTerm} ».</div>`;
+      return;
+    }
+
+    body.innerHTML = filtered.map(v => `
+      <div class="board-row ${v.places===0 ? 'dim':''}">
+        <div class="flap-tiles">${flapTiles(v.numero, 4)}</div>
+        <div class="plain-text">${v.depart}</div>
+        <div class="plain-text">${v.destination}</div>
+        <div class="flap-tiles">${flapTiles(v.places, 3)}</div>
+        <div class="plain-text">${money(v.prix)}</div>
+        <div><span class="badge ${v.places>0?'badge-ok':'badge-full'}">${v.places>0?'Disponible':'Complet'}</span></div>
+      </div>
+    `).join('');
+  }
+
+  // ---------- Render: Réserver select ----------
+  function renderReserveSelect(){
+    const sel = document.getElementById('r-vol');
+    const prevValue = sel.value;
+    if (vols.length === 0){
+      sel.innerHTML = `<option value="">Aucun vol disponible</option>`;
+      document.getElementById('r-flight-info').textContent = '';
+      return;
+    }
+    sel.innerHTML = vols.map(v =>
+      `<option value="${v.numero}">Vol ${v.numero} — ${v.depart} → ${v.destination}</option>`
+    ).join('');
+    if (prevValue && findVol(Number(prevValue))) sel.value = prevValue;
+    updateFlightInfo();
+  }
+
+  function updateFlightInfo(){
+    const sel = document.getElementById('r-vol');
+    const v = findVol(Number(sel.value));
+    const info = document.getElementById('r-flight-info');
+    if (!v){ info.textContent = ''; return; }
+    info.textContent = `${v.places} place${v.places===1?'':'s'} restante${v.places===1?'':'s'} · ${money(v.prix)}`;
+    info.style.color = v.places > 0 ? 'var(--text-secondary)' : 'var(--red)';
+  }
+
+  // ---------- Render: Passagers ----------
+  function renderPassagers(){
+    const tbody = document.getElementById('pax-body');
+    const empty = document.getElementById('pax-empty');
+    document.getElementById('count-pax').textContent = `(${passagers.length})`;
+
+    if (passagers.length === 0){
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      document.getElementById('pax-table').style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    document.getElementById('pax-table').style.display = 'table';
+
+    tbody.innerHTML = passagers.map(p => {
+      const v = findVol(p.numeroVol);
+      const trajet = v ? `${v.depart} → ${v.destination}` : '—';
+      return `<tr>
+        <td class="pax-id">#${String(p.id).padStart(3,'0')}</td>
+        <td>${p.nom}</td>
+        <td>${p.numeroVol}</td>
+        <td>${trajet}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ---------- Actions ----------
+  function addVol(){
+    const numero = parseInt(document.getElementById('f-numero').value, 10);
+    const depart = document.getElementById('f-depart').value.trim();
+    const destination = document.getElementById('f-destination').value.trim();
+    const places = parseInt(document.getElementById('f-places').value, 10);
+    const prix = parseFloat(document.getElementById('f-prix').value);
+
+    if (!numero || !depart || !destination || isNaN(places) || isNaN(prix)){
+      toast('Remplissez tous les champs pour ajouter un vol.', 'error');
+      return;
+    }
+    if (findVol(numero)){
+      toast(`Le numéro de vol ${numero} existe déjà.`, 'error');
+      return;
+    }
+    vols.push({ numero, depart, destination, places, prix });
+    renderVols();
+    renderReserveSelect();
+    closeAddForm();
+    toast(`Vol ${numero} ajouté.`, 'success');
+  }
+
+  function reserverBillet(){
+    const sel = document.getElementById('r-vol');
+    const numero = Number(sel.value);
+    const nom = document.getElementById('r-nom').value.trim();
+    const v = findVol(numero);
+
+    if (!v){
+      toast('Sélectionnez un vol valide.', 'error');
+      return;
+    }
+    if (!nom){
+      toast('Renseignez le nom du passager.', 'error');
+      return;
+    }
+    if (v.places <= 0){
+      toast(`Le vol ${numero} est complet.`, 'error');
+      return;
+    }
+
+    v.places -= 1;
+    const passager = { id: passagers.length + 1, nom, numeroVol: numero };
+    passagers.push(passager);
+
+    renderVols();
+    renderReserveSelect();
+    renderPassagers();
+    renderTicket(passager, v);
+    document.getElementById('r-nom').value = '';
+    toast('Billet réservé.', 'success');
+  }
+
+  function renderTicket(passager, vol){
+    const area = document.getElementById('ticket-area');
+    area.innerHTML = `
+      <div class="ticket-eyebrow">Dernière réservation</div>
+      <div class="ticket-row"><span>Passager</span><span>${passager.nom}</span></div>
+      <div class="ticket-row"><span>ID</span><span>#${String(passager.id).padStart(3,'0')}</span></div>
+      <div class="ticket-row"><span>Vol</span><span>${vol.numero}</span></div>
+      <div class="ticket-row"><span>Trajet</span><span>${vol.depart} → ${vol.destination}</span></div>
+      <div class="ticket-row"><span>Prix</span><span>${money(vol.prix)}</span></div>
+      <div class="ticket-row"><span>Places restantes</span><span>${vol.places}</span></div>
+    `;
+  }
+
+  // ---------- Form open/close ----------
+  function openAddForm(){
+    document.getElementById('add-form').classList.add('open');
+    document.getElementById('toggle-add-form').textContent = '× Fermer';
+  }
+  function closeAddForm(){
+    document.getElementById('add-form').classList.remove('open');
+    document.getElementById('toggle-add-form').textContent = '+ Ajouter un vol';
+    ['f-numero','f-depart','f-destination','f-places','f-prix'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---------- Wire up events ----------
+  document.getElementById('toggle-add-form').addEventListener('click', () => {
+    const form = document.getElementById('add-form');
+    form.classList.contains('open') ? closeAddForm() : openAddForm();
+  });
+  document.getElementById('cancel-add-form').addEventListener('click', closeAddForm);
+  document.getElementById('confirm-add-form').addEventListener('click', addVol);
+  document.getElementById('confirm-reserve').addEventListener('click', reserverBillet);
+  document.getElementById('r-vol').addEventListener('change', updateFlightInfo);
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim();
+    renderVols();
+  });
+  document.getElementById('r-nom').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') reserverBillet();
+  });
+
+  // ---------- Clock ----------
+  function tickClock(){
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleString('fr-FR', {
+      weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'
+    });
+  }
+  tickClock();
+  setInterval(tickClock, 30000);
+
+  // ---------- Initial render ----------
+  renderVols();
+  renderReserveSelect();
+  renderPassagers();
+})();
+</script>
+</body>
+</html>
